@@ -1,6 +1,6 @@
 /**
- * @author Luis Juan Sanchez A01183634
  * @author Alfredo Hinojosa Huerta A01036053
+ * @author Luis Juan Sanchez A01183634
  * @version 1.00 03/11/2014
  */
 package flappywars;
