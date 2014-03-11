@@ -19,9 +19,10 @@ public class FlappyWars extends JFrame {
     
     private Image imgBackground; // Imagen del Background (Tablero X-Wing)
     private Image imgBlack; // Imagen del espacio
-    private Image imgXwing; // TEST XWING <---- DELETE
+    private Image imgPipe; // TEST PIPE <----- DELETE
     private Graphics dbg; // Objeto Grafico
     private Image dbImage; // Imagen
+    private Xwing nave; 
     
     
     public FlappyWars() {
@@ -31,7 +32,7 @@ public class FlappyWars extends JFrame {
         
         imgBackground = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/background.png"));
         imgBlack = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/black.jpg"));
-        imgXwing = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing.png"));
+        imgPipe = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipe.png"));
     }
     
     /**
@@ -63,7 +64,7 @@ public class FlappyWars extends JFrame {
     public void paint1(Graphics g) {
         g.drawImage(imgBlack, 0, 0, this);
         g.drawImage(imgBackground, 0, 0, this);
-        g.drawImage(imgXwing, 150, 150, this);
+        g.drawImage(imgPipe, 500, 320, this);
         
     }
 
