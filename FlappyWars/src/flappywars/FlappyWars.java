@@ -24,6 +24,8 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private long tiempoTranscurrido; // tiempo transcurrido
     private Animacion animNave; // Animacion de X-Wing
     private Animacion animPipe; // Animacion de Pipe
+    private Animacion pp0;
+    private Animacion pp1;
     private Graphics dbg; // Objeto Grafico
     private Image dbImage; // Imagen
     private Xwing nave; // Objeto de la clase Xwing
@@ -71,8 +73,8 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         Image p1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipeD.png"));
 
         //Creacion de las pipas
-        Animacion pp0 = new Animacion();
-        Animacion pp1 = new Animacion();
+        pp0 = new Animacion();
+        pp1 = new Animacion();
         pp0.sumaCuadro(p0, 100);
         pp1.sumaCuadro(p1, 100);
         int rnd = (int) (50 + Math.random() * (483 - gap));
@@ -98,7 +100,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         animNave.sumaCuadro(n3, 200);
         animNave.sumaCuadro(n2, 200);
         animNave.sumaCuadro(n1, 200);
-        
+
         // Lista enlazada de cuadros de X-Wing
         frames.add(n0);
         frames.add(n1);
@@ -117,12 +119,34 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         Thread th = new Thread(this);
         th.start();
     }
-    
+
     /**
      * Metodo de reset
      */
     public void reset() {
-        
+        gameON = true;
+        pause = false;
+        gameOver = false;
+        nVely = 0;
+        score = 0;
+        pipes = new LinkedList();
+        gap = 200;
+        pVelx = 10;
+        nave.setPosX(150);
+        nave.setPosY(200);
+        pipes.clear();
+        int rnd = (int) (50 + Math.random() * (483 - gap));
+        pipes.add(new Pipe(getWidth() + 340, rnd - 383, pp0));
+        pipes.add(new Pipe(getWidth() + 340, rnd + gap, pp1));
+        rnd = (int) (50 + Math.random() * (483 - gap));
+        pipes.add(new Pipe(getWidth() + 340 * 2, rnd - 383, pp0));
+        pipes.add(new Pipe(getWidth() + 340 * 2, rnd + gap, pp1));
+        rnd = (int) (50 + Math.random() * (483 - gap));
+        pipes.add(new Pipe(getWidth() + 340 * 3, rnd - 383, pp0));
+        pipes.add(new Pipe(getWidth() + 340 * 3, rnd + gap, pp1));
+        rnd = (int) (50 + Math.random() * (483 - gap));
+        pipes.add(new Pipe(getWidth() + 340 * 4, rnd - 383, pp0));
+        pipes.add(new Pipe(getWidth() + 340 * 4, rnd + gap, pp1));
     }
 
     /**
@@ -197,10 +221,10 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      */
     public void checaColision() {
         // Colision de X-Wing con fondo del JFrame
-        if(nave.getPosY() > 523 ) {
+        if (nave.getPosY() > 523) {
             gameOver = true;
         }
-        
+
         // Manejo aleatorio de Pipes
         int rnd = 0;
         for (int i = 0; i < 8; i++) {
@@ -290,11 +314,14 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
             if (e.getKeyCode() == KeyEvent.VK_P) {
                 pause = !pause;
             }
+        }
+
+        
             if (e.getKeyCode() == KeyEvent.VK_R) {
+                if (gameOver) {
                 reset();
             }
         }
-
     }
 
     public void keyReleased(KeyEvent e) {
