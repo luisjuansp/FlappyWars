@@ -60,6 +60,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
     private boolean jScore; // Flag de presentar la score
     private boolean jReset; // Flag para resetear el juego
     private int var; // Variable de varianza de las pipas
+    private boolean mov; // Variable del click del mouse
 
     /**
      * Constructor de la clase
@@ -75,6 +76,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
         pause = false;
         gameOver = false;
         instruc = false;
+        mov = false;
         nVely = 0;
         score = 0;
         frames = new LinkedList();
@@ -164,6 +166,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
         gameOver = false;
         jScore = false;
         jReset = false;
+        mov = false;
         nVely = 0;
         score = 0;
         pipes = new LinkedList();
@@ -219,7 +222,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
      * nave cambia la animacion del X-Wing
      */
     public void actualiza() {
-        
+
         Animacion anim = new Animacion();
         int flag = nVely / 5 - 1;
         switch (flag) {
@@ -250,6 +253,9 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
                 break;
         }
         if (nave.getPosY() < this.getHeight()) {
+            if (mov) {
+                nVely = 10;
+            }
             nVely -= 1;
             nave.setPosY(nave.getPosY() - nVely);
         } else {
@@ -416,7 +422,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
         }
         if (gameON && !gameOver) {
             if (e.getKeyCode() == KeyEvent.VK_SPACE && !pause && !instruc) {
-                nVely = 10;
+                mov = true;
                 if (!mute) {
                     jump.play();
                 }
@@ -444,17 +450,17 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
     }
 
     public void keyReleased(KeyEvent e) {
-
+        mov = false;
     }
 
     public void mouseClicked(MouseEvent e) {
-        
+
     }
 
     public void mousePressed(MouseEvent e) {
-      if (gameON && !gameOver) {
+        if (gameON && !gameOver) {
             if (!pause && !instruc) {
-                nVely = 10;
+                mov = true;
                 if (!mute) {
                     jump.play();
                 }
@@ -467,7 +473,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
     }
 
     public void mouseReleased(MouseEvent e) {
-
+        mov = false;
     }
 
     public void mouseEntered(MouseEvent e) {
