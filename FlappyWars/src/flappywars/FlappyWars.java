@@ -20,37 +20,46 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private Image imgBackground; // Imagen del Background (Tablero X-Wing)
     private Image imgBlack; // Imagen del espacio
     private Image imgStart; // Imagen de MainScreen
+    private Image imgPause; // Imagen de pausado
+    private Image imgGO; // Imagen de Game Over
+    private Image imgIns; // Imagen de instrucciones
     private long tiempoActual;  // tiempo actual
     private long tiempoTranscurrido; // tiempo transcurrido
     private Animacion animNave; // Animacion de X-Wing
-    private Animacion animPipe; // Animacion de Pipe
-    private Animacion pp0;
-    private Animacion pp1;
+    private Animacion pp0; // Animacion de Pipe
+    private Animacion pp1; // Animacion de Pipe
     private Graphics dbg; // Objeto Grafico
     private Image dbImage; // Imagen
     private Xwing nave; // Objeto de la clase Xwing
     private int gap; // Distancia entre las pipas verticalmente
-    private int nPosx; // Posicion en x de la nave
-    private int nPosy; // Posicion en y de la nave
     private int nVely; // velocidad en y de la nave
     private int pVelx; // Velocidad de los obstaculos
     private int score; // Score del jugador
     private boolean gameON; // Flag de iniciar juego
     private boolean pause; // Flag de pausa
     private boolean gameOver; //Flag de juego terminado
-    private LinkedList frames;
-    private LinkedList pipes;
-    private SoundClip jump;
-    private SoundClip goal;
-    private SoundClip death;
+    private boolean instruc; // Flag de instrucciones
+    private Font myFont; // Estilo fuente personalizado
+    private Color verdeT; // Color especial
+    private LinkedList frames; // Lista enlazada de Frames de X-wing
+    private LinkedList pipes; // Lista enlazada de Pipes
+    private SoundClip jump; // Sonido de salto
+    private SoundClip goal; // Sonido de punto
+    private SoundClip death; // Sonido de muerte
 
+    /**
+     * Constructor de la clase
+     */
     public FlappyWars() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1280, 760);
         setTitle("Flappy Wars");
+        myFont = new Font("Serif", Font.BOLD, 14);
+        verdeT = new Color(1, 75, 8);
         gameON = false;
         pause = false;
         gameOver = false;
+        instruc = false;
         nVely = 0;
         score = 0;
         frames = new LinkedList();
@@ -58,9 +67,13 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         gap = 200;
         pVelx = 10;
 
+        // Imagenes del juego
+        imgPause = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pause.png"));
         imgStart = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/start.png"));
         imgBackground = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/background.png"));
         imgBlack = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/black.jpg"));
+        imgGO = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/gameover.png"));
+        imgIns = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/inst.png"));
 
         // Se cargan las imagenes de animNave
         Image n0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing4.png"));
@@ -111,6 +124,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         // X-Wing
         nave = new Xwing(150, 200, animNave);
 
+        // Se cargan los sonidos
         jump = new SoundClip("sounds/jump.wav");
         goal = new SoundClip("sounds/goal.wav");
         death = new SoundClip("sounds/death.wav");
@@ -121,10 +135,12 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     }
 
     /**
-     * Metodo de reset
+     * Metodo que reinicia el juego despues de perder. Reinicia los valores
+     * iniciales del juego
      */
     public void reset() {
         gameON = true;
+        instruc = false;
         pause = false;
         gameOver = false;
         nVely = 0;
@@ -150,12 +166,14 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     }
 
     /**
-     * Se ejecuta el Thread, el juego no continua si la pausa esta activada.
+     * Se ejecuta el Thread, el juego no continua si la pausa esta activada. El
+     * juego no continua si no sea presionado Enter del Menu Principal. El juego
+     * termina cuando la boolean gameOver es True
      */
     public void run() {
         tiempoActual = System.currentTimeMillis();
         while (true) {
-            if (gameON && !pause) {
+            if (gameON && !pause && !instruc) {
                 if (!gameOver) {
                     checaColision();
                 }
@@ -171,7 +189,9 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     }
 
     /**
-     * En este metodo se actualiza las posiciones del balon y de la canasta.
+     * En este metodo se actualiza la posicion en Y del X-Wing. Aqui se genera
+     * el movimiento aleatorio de los pipes Dependiendo de la direccion de la
+     * nave cambia la animacion del X-Wing
      */
     public void actualiza() {
         // Guarda el tiempo actual del sistema
@@ -219,8 +239,9 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     }
 
     /**
-     * Este metodo se encarga de cambiar las posiciones de lso objetos balon y
-     * canasta cuando colisionan entre si.
+     * Este metodo se administran las colisiones entre el X-Wing con el JFrame,
+     * las colisiones del X-Wing con las pipes y la colision de las pipes
+     * aleatorias
      */
     public void checaColision() {
         // Colision de X-Wing con fondo del JFrame
@@ -278,13 +299,14 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     }
 
     /**
-     * Este metodo pinta la imagen con posicion actualizada
+     * Este metodo pinta las imagenes correctas dependiendo de su posicion
+     * actulizada y de los estados del juego.
      */
     public void paint1(Graphics g) {
-        if (!gameON) {
+        if (!gameON) { // Menu principal
             g.drawImage(imgBlack, 0, 0, this);
             g.drawImage(imgStart, 0, 0, this);
-        } else if (gameON) {
+        } else if (gameON) { // Juego comenzado
             g.drawImage(imgBlack, 0, 0, this);
             for (int i = 0; i < 8; i++) {
                 Pipe temp = (Pipe) pipes.get(i);
@@ -293,7 +315,24 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
             if (nave.getAnimacion() != null) {
                 g.drawImage(nave.animacion.getImagen(), nave.getPosX(), nave.getPosY(), this);
             }
+            g.setFont(myFont);
+            g.setColor(verdeT);
             g.drawImage(imgBackground, 0, 0, this);
+            g.drawString("" + score, 564, 682);
+        }
+
+        if (pause) { // Juego pausado
+            g.drawImage(imgPause, 0, 0, this);
+            g.drawString("" + score, 564, 682);
+        }
+
+        if (instruc) { // Instrucciones del juego
+            g.drawImage(imgIns, 0, 0, this);
+        }
+
+        if (gameOver) { // Juego perdido
+            g.drawImage(imgGO, 0, 0, this);
+            g.drawString("" + score, 564, 682);
         }
     }
 
@@ -310,23 +349,41 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
 
     }
 
+    /**
+     * Se encarga de las instrucciones relacionadas con las teclas, como la
+     * pausa (P), el inicio del juego (ENTER), el salto (SPACE), las
+     * instrucciones (I), el metodo de reset (R) y el salir del juego al perder
+     * (S).
+     *
+     * @param e evento activado por una tecla en especifico
+     */
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             gameON = true;
         }
         if (gameON && !gameOver) {
-            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            if (e.getKeyCode() == KeyEvent.VK_SPACE && !pause && !instruc) {
                 nVely = 10;
                 jump.play();
             }
-            if (e.getKeyCode() == KeyEvent.VK_P) {
+            if (e.getKeyCode() == KeyEvent.VK_P && !instruc) {
                 pause = !pause;
             }
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            instruc = !instruc;
         }
 
         if (e.getKeyCode() == KeyEvent.VK_R) {
             if (gameOver) {
                 reset();
+            }
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_S) {
+            if (gameOver) {
+                System.exit(0);
             }
         }
     }
