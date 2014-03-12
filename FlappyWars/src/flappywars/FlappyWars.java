@@ -52,6 +52,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
     private SoundClip death; // Sonido de muerte
     private boolean jScore; // Flag de presentar la score
     private boolean jReset; // Flag para resetear el juego
+    private int var; // Variable de varianza de las pipas
 
     /**
      * Constructor de la clase
@@ -73,6 +74,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
         pipes = new LinkedList();
         gap = 200;
         pVelx = 10;
+        var = 100;
 
         // Imagenes del juego
         imgPause = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pause.png"));
@@ -97,16 +99,16 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
         pp1 = new Animacion();
         pp0.sumaCuadro(p0, 100);
         pp1.sumaCuadro(p1, 100);
-        int rnd = (int) (50 + Math.random() * (483 - gap));
+        int rnd = (int) (50 + var + Math.random() * (483 - (2 * var) - gap));
         pipes.add(new Pipe(getWidth() + 340, rnd - 383, pp0));
         pipes.add(new Pipe(getWidth() + 340, rnd + gap, pp1));
-        rnd = (int) (50 + Math.random() * (483 - gap));
+        rnd = (int) (50 + var + Math.random() * (483 - (2 * var) - gap));
         pipes.add(new Pipe(getWidth() + 340 * 2, rnd - 383, pp0));
         pipes.add(new Pipe(getWidth() + 340 * 2, rnd + gap, pp1));
-        rnd = (int) (50 + Math.random() * (483 - gap));
+        rnd = (int) (50 + var + Math.random() * (483 - (2 * var) - gap));
         pipes.add(new Pipe(getWidth() + 340 * 3, rnd - 383, pp0));
         pipes.add(new Pipe(getWidth() + 340 * 3, rnd + gap, pp1));
-        rnd = (int) (50 + Math.random() * (483 - gap));
+        rnd = (int) (50 + var + Math.random() * (483 - (2 * var) - gap));
         pipes.add(new Pipe(getWidth() + 340 * 4, rnd - 383, pp0));
         pipes.add(new Pipe(getWidth() + 340 * 4, rnd + gap, pp1));
 
@@ -130,7 +132,8 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
 
         // X-Wing
         nave = new Xwing(150, 200, animNave);
-
+        nave.setPosX(this.getWidth() / 2 - nave.getAncho() / 2);
+        nave.setPosY(this.getHeight() / 2 - nave.getAlto() / 2);
         // Se cargan los sonidos
         jump = new SoundClip("sounds/jump.wav");
         goal = new SoundClip("sounds/goal.wav");
@@ -159,19 +162,20 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
         pipes = new LinkedList();
         gap = 200;
         pVelx = 10;
-        nave.setPosX(150);
-        nave.setPosY(200);
+        var = 100;
+        nave.setPosX(this.getWidth() / 2 - nave.getAncho() / 2);
+        nave.setPosY(this.getHeight() / 2 - nave.getAlto() / 2);
         pipes.clear();
-        int rnd = (int) (50 + Math.random() * (483 - gap));
+        int rnd = (int) (50 + var + Math.random() * (483 - (2 * var) - gap));
         pipes.add(new Pipe(getWidth() + 340, rnd - 383, pp0));
         pipes.add(new Pipe(getWidth() + 340, rnd + gap, pp1));
-        rnd = (int) (50 + Math.random() * (483 - gap));
+        rnd = (int) (50 + var + Math.random() * (483 - (2 * var) - gap));
         pipes.add(new Pipe(getWidth() + 340 * 2, rnd - 383, pp0));
         pipes.add(new Pipe(getWidth() + 340 * 2, rnd + gap, pp1));
-        rnd = (int) (50 + Math.random() * (483 - gap));
+        rnd = (int) (50 + var + Math.random() * (483 - (2 * var) - gap));
         pipes.add(new Pipe(getWidth() + 340 * 3, rnd - 383, pp0));
         pipes.add(new Pipe(getWidth() + 340 * 3, rnd + gap, pp1));
-        rnd = (int) (50 + Math.random() * (483 - gap));
+        rnd = (int) (50 + var + Math.random() * (483 - (2 * var) - gap));
         pipes.add(new Pipe(getWidth() + 340 * 4, rnd - 383, pp0));
         pipes.add(new Pipe(getWidth() + 340 * 4, rnd + gap, pp1));
     }
@@ -197,10 +201,6 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
                 System.out.println("Error en " + ex.toString());
             }
             if (jScore) {
-                String nombre = JOptionPane.showInputDialog("Cual es tu nombre?");
-                JOptionPane.showMessageDialog(null,
-                        "El puntaje de " + nombre + " es: " + score, "PUNTAJE",
-                        JOptionPane.PLAIN_MESSAGE);
                 jReset = true;
             }
         }
@@ -212,11 +212,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
      * nave cambia la animacion del X-Wing
      */
     public void actualiza() {
-        // Guarda el tiempo actual del sistema
-
-//        tiempoTranscurrido = System.currentTimeMillis() - tiempoActual;
-//        tiempoActual += tiempoTranscurrido;
-//        nave.getAnimacion().actualiza(tiempoTranscurrido);
+        
         Animacion anim = new Animacion();
         int flag = nVely / 5 - 1;
         switch (flag) {
@@ -252,6 +248,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
         } else {
             jScore = !jReset;
         }
+        pVelx = 10 + (score / 10) * 2;
         if (!gameOver) {
             for (int i = 0; i < 8; i++) {
                 Pipe temp = (Pipe) pipes.get(i);
@@ -279,10 +276,13 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
         int rnd = 0;
         for (int i = 0; i < 8; i++) {
             Pipe temp = (Pipe) pipes.get(i);
-            if ((i % 2 == 0) && temp.getPosX() == nave.getPosX()) {
-                score++;
-                if (!mute) {
-                    goal.play();
+            if ((i % 2 == 0) && temp.getPosX() < nave.getPosX()) {
+                if (temp.getBool()) {
+                    score++;
+                    if (!mute) {
+                        goal.play();
+                    }
+                    temp.setBool(false);
                 }
             }
             if (temp.getPerimetro().intersects(nave.getPerimetro())) {
@@ -293,12 +293,25 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseLi
             }
             if (temp.getPosX() < -temp.getAncho()) {
                 if (i % 2 == 0) {
-                    rnd = (int) (50 + Math.random() * (483 - gap));
+                    var = score / 10;
+                    switch (var) {
+                        case 0:
+                            var = 100;
+                            break;
+                        case 1:
+                            var = 50;
+                            break;
+                        default:
+                            var = 0;
+                            break;
+                    }
+                    rnd = (int) (50 + var + Math.random() * (483 - (2 * var) - gap));
                     temp.setPosY(rnd - 383);
                 } else {
                     temp.setPosY(rnd + gap);
                 }
                 temp.setPosX(getWidth());
+                temp.setBool(true);
             }
         }
     }
