@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.LinkedList;
 import java.awt.Graphics;
+import javax.swing.JOptionPane;
 
 public class FlappyWars extends JFrame implements Runnable, KeyListener {
 
@@ -46,6 +47,8 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private SoundClip jump; // Sonido de salto
     private SoundClip goal; // Sonido de punto
     private SoundClip death; // Sonido de muerte
+    private boolean jScore; // Flag de presentar la score
+    private boolean jReset; // Flag para resetear el juego
 
     /**
      * Constructor de la clase
@@ -143,6 +146,8 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         instruc = false;
         pause = false;
         gameOver = false;
+        jScore = false;
+        jReset = false;
         nVely = 0;
         score = 0;
         pipes = new LinkedList();
@@ -184,6 +189,13 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
                 Thread.sleep(50);
             } catch (InterruptedException ex) {
                 System.out.println("Error en " + ex.toString());
+            }
+            if (jScore) {
+                String nombre = JOptionPane.showInputDialog("Cual es tu nombre?");
+                JOptionPane.showMessageDialog(null,
+                        "El puntaje de " + nombre + " es: " + score, "PUNTAJE",
+                        JOptionPane.PLAIN_MESSAGE);
+                jReset = true;
             }
         }
     }
@@ -228,8 +240,12 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
                 nave.setAnimacion(anim);
                 break;
         }
-        nVely -= 1;
-        nave.setPosY(nave.getPosY() - nVely);
+        if (nave.getPosY() < this.getHeight()) {
+            nVely -= 1;
+            nave.setPosY(nave.getPosY() - nVely);
+        } else {
+            jScore = !jReset;
+        }
         if (!gameOver) {
             for (int i = 0; i < 8; i++) {
                 Pipe temp = (Pipe) pipes.get(i);
@@ -248,6 +264,10 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         if (nave.getPosY() > 523) {
             gameOver = true;
             death.play();
+        }
+        
+        if (nave.getPosY()<50){
+            nVely = 0;
         }
 
         // Manejo aleatorio de Pipes
@@ -376,7 +396,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         }
 
         if (e.getKeyCode() == KeyEvent.VK_R) {
-            if (gameOver) {
+            if (jReset) {
                 reset();
             }
         }
