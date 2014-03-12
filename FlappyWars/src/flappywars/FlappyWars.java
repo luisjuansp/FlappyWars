@@ -20,6 +20,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private Image imgBackground; // Imagen del Background (Tablero X-Wing)
     private Image imgBlack; // Imagen del espacio
     private Image imgPipe; // TEST PIPE <----- DELETE
+    private Image imgStart;// Imagen de inicio
     private long tiempoActual;  // tiempo actual
     private long tiempoPipe; // tiempo inicial
     private long tiempoTranscurrido; // tiempo transcurrido
@@ -28,7 +29,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private Graphics dbg; // Objeto Grafico
     private Image dbImage; // Imagen
     private Xwing nave; // Objeto de la clase Xwing
-    
+    private boolean gameON; // Booleano de juego activo
     private int nPosx; // Posicion en x de la nave
     private int nPosy; // Posicion en y de la nave
     private int nVely; // velocidad en y de la nave
@@ -43,6 +44,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         tiempoPipe = 0;
         frames = new LinkedList();
 
+        imgStart = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/start.png"));
         imgBackground = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/background.png"));
         imgBlack = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/black.jpg"));
         imgPipe = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipeD.png"));
@@ -151,8 +153,9 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      */
     public void paint1(Graphics g) {
         g.drawImage(imgBlack, 0, 0, this);
-        g.drawImage(imgPipe, 500, 332, this);
-        g.drawImage(imgBackground, 0, 0, this);
+        //g.drawImage(imgPipe, 500, 332, this);
+        //g.drawImage(imgBackground, 0, 0, this);
+        g.drawImage(imgStart, 0, 0, this);
 
         if (nave.getAnimacion() != null) {
             g.drawImage(nave.animacion.getImagen(), nave.getPosX(), nave.getPosY(), this);
