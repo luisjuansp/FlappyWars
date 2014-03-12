@@ -31,18 +31,23 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private int nPosy; // Posicion en y de la nave
     private int nVely; // velocidad en y de la nave
     private int pVelx; // Velocidad de los obstaculos
+    private int score; // Score del jugador
     private LinkedList frames;
     private LinkedList pipes;
+    private SoundClip jump;
+    private SoundClip goal;
+    private SoundClip death;
 
     public FlappyWars() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1280, 760);
         setTitle("Flappy Wars");
         nVely = 0;
+        score = 0;
         frames = new LinkedList();
         pipes = new LinkedList();
         gap = 200;
-        pVelx = 5;
+        pVelx = 10;
 
         imgBackground = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/background.png"));
         imgBlack = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/black.jpg"));
@@ -94,6 +99,10 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
 
         // X-Wing
         nave = new Xwing(150, 200, animNave);
+
+        jump = new SoundClip("sounds/jump.wav");
+        goal = new SoundClip("sounds/goal.wav");
+        death = new SoundClip("sounds/death.wav");
 
         addKeyListener(this);
         Thread th = new Thread(this);
@@ -169,9 +178,20 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      * canasta cuando colisionan entre si.
      */
     public void checaColision() {
+        int rnd = 0;
         for (int i = 0; i < 8; i++) {
             Pipe temp = (Pipe) pipes.get(i);
+            if ((i % 2 == 0) && temp.getPosX() == nave.getPosX()) {
+                score++;
+                goal.play();
+            }
             if (temp.getPosX() < -temp.getAncho()) {
+                if (i % 2 == 0) {
+                    rnd = (int) (50 + Math.random() * (483 - gap));
+                    temp.setPosY(rnd - 383);
+                } else {
+                    temp.setPosY(rnd + gap);
+                }
                 temp.setPosX(getWidth());
             }
         }
@@ -213,6 +233,8 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         if (nave.getAnimacion() != null) {
             g.drawImage(nave.animacion.getImagen(), nave.getPosX(), nave.getPosY(), this);
         }
+        g.setColor(Color.white);
+        g.drawString("Score: " + score, 10, 60);
         g.drawImage(imgBackground, 0, 0, this);
     }
 
@@ -232,6 +254,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             nVely = 10;
+            jump.play();
         }
     }
 
