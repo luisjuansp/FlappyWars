@@ -26,7 +26,8 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private Animacion animNave; // Animacion de X-Wing
     private Graphics dbg; // Objeto Grafico
     private Image dbImage; // Imagen
-    private Xwing nave; // Objeto de la clase Xwing 
+    private Xwing nave; // Objeto de la clase Xwing
+    
     private int nPosx; // Posicion en x de la nave
     private int nPosy; // Posicion en y de la nave
     private int nVely; // velocidad en y de la nave
@@ -71,6 +72,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
 
         // X-Wing
         nave = new Xwing(150, 200, animNave);
+        
         addKeyListener(this);
         Thread th = new Thread(this);
         th.start();
@@ -106,7 +108,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
             tiempoPipe -= 2000;
         }
         nave.getAnimacion().actualiza(tiempoTranscurrido);
-        nVely -= 3;
+        nVely -= 1;
         nave.setPosY(nave.getPosY() - nVely);
 
     }
@@ -173,7 +175,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
 
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            nVely = 30;
+            nVely = 10;
         }
     }
 
