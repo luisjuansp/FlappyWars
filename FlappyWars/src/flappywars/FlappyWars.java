@@ -32,20 +32,29 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private int nPosy; // Posicion en y de la nave
     private int nVely; // velocidad en y de la nave
     private int pVelx; // Velocidad de los obstaculos
-    private boolean gameON; // Flag de juego iniciado
+    private int score; // Score del jugador
+    private boolean gameON; // Flag de iniciar juego
+    private boolean pause; // Flag de pausa
+    private boolean gameOver; //Flag de juego terminado
     private LinkedList frames;
     private LinkedList pipes;
+    private SoundClip jump;
+    private SoundClip goal;
+    private SoundClip death;
 
     public FlappyWars() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1280, 760);
         setTitle("Flappy Wars");
         gameON = false;
+        pause = false;
+        gameOver = false;
         nVely = 0;
+        score = 0;
         frames = new LinkedList();
         pipes = new LinkedList();
         gap = 200;
-        pVelx = 5;
+        pVelx = 10;
 
         imgStart = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/start.png"));
         imgBackground = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/background.png"));
@@ -89,7 +98,8 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         animNave.sumaCuadro(n3, 200);
         animNave.sumaCuadro(n2, 200);
         animNave.sumaCuadro(n1, 200);
-
+        
+        // Lista enlazada de cuadros de X-Wing
         frames.add(n0);
         frames.add(n1);
         frames.add(n2);
@@ -99,9 +109,20 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         // X-Wing
         nave = new Xwing(150, 200, animNave);
 
+        jump = new SoundClip("sounds/jump.wav");
+        goal = new SoundClip("sounds/goal.wav");
+        death = new SoundClip("sounds/death.wav");
+
         addKeyListener(this);
         Thread th = new Thread(this);
         th.start();
+    }
+    
+    /**
+     * Metodo de reset
+     */
+    public void reset() {
+        
     }
 
     /**
@@ -110,9 +131,9 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     public void run() {
         tiempoActual = System.currentTimeMillis();
         while (true) {
-            if (gameON) {
-             checaColision();
-             actualiza();   
+            if (gameON && !pause && !gameOver) {
+                checaColision();
+                actualiza();
             }
             repaint();
             try {
@@ -175,9 +196,26 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      * canasta cuando colisionan entre si.
      */
     public void checaColision() {
+        // Colision de X-Wing con fondo del JFrame
+        if(nave.getPosY() > 523 ) {
+            gameOver = true;
+        }
+        
+        // Manejo aleatorio de Pipes
+        int rnd = 0;
         for (int i = 0; i < 8; i++) {
             Pipe temp = (Pipe) pipes.get(i);
+            if ((i % 2 == 0) && temp.getPosX() == nave.getPosX()) {
+                score++;
+                goal.play();
+            }
             if (temp.getPosX() < -temp.getAncho()) {
+                if (i % 2 == 0) {
+                    rnd = (int) (50 + Math.random() * (483 - gap));
+                    temp.setPosY(rnd - 383);
+                } else {
+                    temp.setPosY(rnd + gap);
+                }
                 temp.setPosX(getWidth());
             }
         }
@@ -241,12 +279,22 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     }
 
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            nVely = 10;
-        }
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             gameON = true;
         }
+        if (gameON) {
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                nVely = 10;
+                jump.play();
+            }
+            if (e.getKeyCode() == KeyEvent.VK_P) {
+                pause = !pause;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_R) {
+                reset();
+            }
+        }
+
     }
 
     public void keyReleased(KeyEvent e) {
