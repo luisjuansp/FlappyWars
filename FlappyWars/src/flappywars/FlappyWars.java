@@ -21,6 +21,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private long tiempoActual;  // tiempo actual
     private long tiempoInicial; // tiempo inicial
     private Animacion animNave; // Animacion de X-Wing
+    private Animacion animPipe; // Animacion de Pipe
     private Graphics dbg; // Objeto Grafico
     private Image dbImage; // Imagen
     private Xwing nave; // Objeto de la clase Xwing 
@@ -115,7 +116,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     public void paint1(Graphics g) {
         g.drawImage(imgBlack, 0, 0, this);
         g.drawImage(imgBackground, 0, 0, this);
-        g.drawImage(imgPipe, 500, 320, this);
+        g.drawImage(imgPipe, 500, 332, this);
         if (nave.getAnimacion() != null) {
             g.drawImage(nave.animacion.getImagen(), nave.getPosX(), nave.getPosY(), this);
         }
