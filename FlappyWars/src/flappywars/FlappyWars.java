@@ -10,6 +10,8 @@ import javax.swing.JFrame;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Font;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.LinkedList;
@@ -23,7 +25,7 @@ import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class FlappyWars extends JFrame implements Runnable, KeyListener {
+public class FlappyWars extends JFrame implements Runnable, KeyListener, MouseListener {
 
     private Image imgBackground; // Imagen del Background (Tablero X-Wing)
     private Image imgBlack; // Imagen del espacio
@@ -47,6 +49,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private boolean pause; // Flag de pausa
     private boolean gameOver; //Flag de juego terminado
     private boolean instruc; // Flag de instrucciones
+    private boolean mute; // Flag que desactiva los sonidos
     private Font myFont; // Estilo fuente personalizado
     private Color verdeT; // Color especial
     private LinkedList frames; // Lista enlazada de Frames de X-wing
@@ -68,6 +71,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         myFont = new Font("Serif", Font.BOLD, 14);
         verdeT = new Color(1, 75, 8);
         gameON = false;
+        mute = false;
         pause = false;
         gameOver = false;
         instruc = false;
@@ -143,6 +147,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         death = new SoundClip("sounds/death.wav");
 
         addKeyListener(this);
+        addMouseListener(this);
         Thread th = new Thread(this);
         th.start();
     }
@@ -152,6 +157,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      * iniciales del juego
      */
     public void reset() {
+        mute = false;
         gameON = true;
         instruc = false;
         pause = false;
@@ -202,10 +208,6 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
                 System.out.println("Error en " + ex.toString());
             }
             if (jScore) {
-                String nombre = JOptionPane.showInputDialog("Cual es tu nombre?");
-                JOptionPane.showMessageDialog(null,
-                        "El puntaje de " + nombre + " es: " + score, "PUNTAJE",
-                        JOptionPane.PLAIN_MESSAGE);
                 jReset = true;
             }
         }
@@ -217,11 +219,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      * nave cambia la animacion del X-Wing
      */
     public void actualiza() {
-        // Guarda el tiempo actual del sistema
-
-//        tiempoTranscurrido = System.currentTimeMillis() - tiempoActual;
-//        tiempoActual += tiempoTranscurrido;
-//        nave.getAnimacion().actualiza(tiempoTranscurrido);
+        
         Animacion anim = new Animacion();
         int flag = nVely / 5 - 1;
         switch (flag) {
@@ -273,13 +271,12 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      */
     public void checaColision() {
         // Colision de X-Wing con fondo del JFrame
-        if (nave.getPosY() > 523) {
+        if ((nave.getPosY() > 523) || (nave.getPosY() < 30)) {
             gameOver = true;
-            death.play();
-        }
+            if (!mute) {
+                death.play();
+            }
 
-        if (nave.getPosY() < 50) {
-            nVely = 0;
         }
 
         // Manejo aleatorio de Pipes
@@ -289,13 +286,17 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
             if ((i % 2 == 0) && temp.getPosX() < nave.getPosX()) {
                 if (temp.getBool()) {
                     score++;
-                    goal.play();
+                    if (!mute) {
+                        goal.play();
+                    }
                     temp.setBool(false);
                 }
             }
             if (temp.getPerimetro().intersects(nave.getPerimetro())) {
                 gameOver = true;
-                death.play();
+                if (!mute) {
+                    death.play();
+                }
             }
             if (temp.getPosX() < -temp.getAncho()) {
                 if (i % 2 == 0) {
@@ -406,13 +407,19 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      * @param e evento activado por una tecla en especifico
      */
     public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_M) {
+            mute = !mute;
+        }
+
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             gameON = true;
         }
         if (gameON && !gameOver) {
             if (e.getKeyCode() == KeyEvent.VK_SPACE && !pause && !instruc) {
                 nVely = 10;
-                jump.play();
+                if (!mute) {
+                    jump.play();
+                }
             }
             if (e.getKeyCode() == KeyEvent.VK_P && !instruc) {
                 pause = !pause;
@@ -423,7 +430,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
             instruc = !instruc;
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_R) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             if (jReset) {
                 reset();
             }
@@ -437,6 +444,37 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     }
 
     public void keyReleased(KeyEvent e) {
+
+    }
+
+    public void mouseClicked(MouseEvent e) {
+        
+    }
+
+    public void mousePressed(MouseEvent e) {
+      if (gameON && !gameOver) {
+            if (!pause && !instruc) {
+                nVely = 10;
+                if (!mute) {
+                    jump.play();
+                }
+            }
+        }
+
+        if (jReset) {
+            reset();
+        }
+    }
+
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    public void mouseExited(MouseEvent e) {
 
     }
 
