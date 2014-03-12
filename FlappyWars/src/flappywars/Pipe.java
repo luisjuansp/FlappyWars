@@ -15,3 +15,4 @@ public class Pipe extends Base {
         super(posX, posY, animacion);
     }
 }
+
