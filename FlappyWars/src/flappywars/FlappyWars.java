@@ -155,8 +155,10 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     public void run() {
         tiempoActual = System.currentTimeMillis();
         while (true) {
-            if (gameON && !pause && !gameOver) {
-                checaColision();
+            if (gameON && !pause) {
+                if (!gameOver) {
+                    checaColision();
+                }
                 actualiza();
             }
             repaint();
@@ -174,9 +176,9 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     public void actualiza() {
         // Guarda el tiempo actual del sistema
 
-        tiempoTranscurrido = System.currentTimeMillis() - tiempoActual;
-        tiempoActual += tiempoTranscurrido;
-        nave.getAnimacion().actualiza(tiempoTranscurrido);
+//        tiempoTranscurrido = System.currentTimeMillis() - tiempoActual;
+//        tiempoActual += tiempoTranscurrido;
+//        nave.getAnimacion().actualiza(tiempoTranscurrido);
         Animacion anim = new Animacion();
         int flag = nVely / 5 - 1;
         switch (flag) {
@@ -208,11 +210,12 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         }
         nVely -= 1;
         nave.setPosY(nave.getPosY() - nVely);
-        for (int i = 0; i < 8; i++) {
-            Pipe temp = (Pipe) pipes.get(i);
-            temp.setPosX(temp.getPosX() - pVelx);
+        if (!gameOver) {
+            for (int i = 0; i < 8; i++) {
+                Pipe temp = (Pipe) pipes.get(i);
+                temp.setPosX(temp.getPosX() - pVelx);
+            }
         }
-
     }
 
     /**
@@ -223,6 +226,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         // Colision de X-Wing con fondo del JFrame
         if (nave.getPosY() > 523) {
             gameOver = true;
+            death.play();
         }
 
         // Manejo aleatorio de Pipes
@@ -232,6 +236,10 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
             if ((i % 2 == 0) && temp.getPosX() == nave.getPosX()) {
                 score++;
                 goal.play();
+            }
+            if (temp.getPerimetro().intersects(nave.getPerimetro())) {
+                gameOver = true;
+                death.play();
             }
             if (temp.getPosX() < -temp.getAncho()) {
                 if (i % 2 == 0) {
@@ -306,7 +314,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             gameON = true;
         }
-        if (gameON) {
+        if (gameON && !gameOver) {
             if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                 nVely = 10;
                 jump.play();
@@ -316,9 +324,8 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
             }
         }
 
-        
-            if (e.getKeyCode() == KeyEvent.VK_R) {
-                if (gameOver) {
+        if (e.getKeyCode() == KeyEvent.VK_R) {
+            if (gameOver) {
                 reset();
             }
         }
