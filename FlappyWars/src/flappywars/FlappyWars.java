@@ -19,20 +19,18 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
 
     private Image imgBackground; // Imagen del Background (Tablero X-Wing)
     private Image imgBlack; // Imagen del espacio
-    private Image imgPipe; // TEST PIPE <----- DELETE
     private long tiempoActual;  // tiempo actual
-    private long tiempoPipe; // tiempo inicial
     private long tiempoTranscurrido; // tiempo transcurrido
     private Animacion animNave; // Animacion de X-Wing
     private Animacion animPipe; // Animacion de Pipe
     private Graphics dbg; // Objeto Grafico
     private Image dbImage; // Imagen
     private Xwing nave; // Objeto de la clase Xwing
-    
+    private int gap; // Distancia entre las pipas verticalmente
     private int nPosx; // Posicion en x de la nave
     private int nPosy; // Posicion en y de la nave
     private int nVely; // velocidad en y de la nave
-    private int oVelx; // Velocidad de los obstaculos
+    private int pVelx; // Velocidad de los obstaculos
     private LinkedList frames;
     private LinkedList pipes;
 
@@ -41,13 +39,13 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         setSize(1280, 760);
         setTitle("Flappy Wars");
         nVely = 0;
-        tiempoPipe = 0;
         frames = new LinkedList();
         pipes = new LinkedList();
+        gap = 200;
+        pVelx = 5;
 
         imgBackground = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/background.png"));
         imgBlack = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/black.jpg"));
-        imgPipe = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipe.png"));
 
         // Se cargan las imagenes de animNave
         Image n0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing4.png"));
@@ -56,17 +54,27 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         Image n3 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing1.png"));
         Image n4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing0.png"));
 
-        Image p0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipe.png"));
-        Image p1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipe.png")); 
-        pipes.add(p0);
-        pipes.add(p1);
-        pipes.add(p0);
-        pipes.add(p1);
-        pipes.add(p0);
-        pipes.add(p1);
-        
-        
-        
+        Image p0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipeU.png"));
+        Image p1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipeD.png"));
+
+        //Creacion de las pipas
+        Animacion pp0 = new Animacion();
+        Animacion pp1 = new Animacion();
+        pp0.sumaCuadro(p0, 100);
+        pp1.sumaCuadro(p1, 100);
+        int rnd = (int) (50 + Math.random() * (483 - gap));
+        pipes.add(new Pipe(getWidth() + 340, rnd - 383, pp0));
+        pipes.add(new Pipe(getWidth() + 340, rnd + gap, pp1));
+        rnd = (int) (50 + Math.random() * (483 - gap));
+        pipes.add(new Pipe(getWidth() + 340 * 2, rnd - 383, pp0));
+        pipes.add(new Pipe(getWidth() + 340 * 2, rnd + gap, pp1));
+        rnd = (int) (50 + Math.random() * (483 - gap));
+        pipes.add(new Pipe(getWidth() + 340 * 3, rnd - 383, pp0));
+        pipes.add(new Pipe(getWidth() + 340 * 3, rnd + gap, pp1));
+        rnd = (int) (50 + Math.random() * (483 - gap));
+        pipes.add(new Pipe(getWidth() + 340 * 4, rnd - 383, pp0));
+        pipes.add(new Pipe(getWidth() + 340 * 4, rnd + gap, pp1));
+
         // Animacion del X-Wing
         animNave = new Animacion();
         animNave.sumaCuadro(n0, 200);
@@ -86,7 +94,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
 
         // X-Wing
         nave = new Xwing(150, 200, animNave);
-        
+
         addKeyListener(this);
         Thread th = new Thread(this);
         th.start();
@@ -117,13 +125,42 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
 
         tiempoTranscurrido = System.currentTimeMillis() - tiempoActual;
         tiempoActual += tiempoTranscurrido;
-        tiempoPipe += tiempoTranscurrido;
-        if (tiempoPipe > 2000) {
-            tiempoPipe -= 2000;
-        }
         nave.getAnimacion().actualiza(tiempoTranscurrido);
+        Animacion anim = new Animacion();
+        int flag = nVely / 5 - 1;
+        switch (flag) {
+            case 1:
+                Image n4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing0.png"));
+                anim.sumaCuadro(n4, 100);
+                nave.setAnimacion(anim);
+                break;
+            case 0:
+                n4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing1.png"));
+                anim.sumaCuadro(n4, 100);
+                nave.setAnimacion(anim);
+                break;
+            case -1:
+                n4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing2.png"));
+                anim.sumaCuadro(n4, 100);
+                nave.setAnimacion(anim);
+                break;
+            case -2:
+                n4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing3.png"));
+                anim.sumaCuadro(n4, 100);
+                nave.setAnimacion(anim);
+                break;
+            default:
+                n4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing4.png"));
+                anim.sumaCuadro(n4, 100);
+                nave.setAnimacion(anim);
+                break;
+        }
         nVely -= 1;
         nave.setPosY(nave.getPosY() - nVely);
+        for (int i = 0; i < 8; i++) {
+            Pipe temp = (Pipe) pipes.get(i);
+            temp.setPosX(temp.getPosX() - pVelx);
+        }
 
     }
 
@@ -132,7 +169,12 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      * canasta cuando colisionan entre si.
      */
     public void checaColision() {
-
+        for (int i = 0; i < 8; i++) {
+            Pipe temp = (Pipe) pipes.get(i);
+            if (temp.getPosX() < -temp.getAncho()) {
+                temp.setPosX(getWidth());
+            }
+        }
     }
 
     /**
@@ -164,13 +206,14 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      */
     public void paint1(Graphics g) {
         g.drawImage(imgBlack, 0, 0, this);
-        g.drawImage(imgBackground, 0, 0, this);
-
-        g.drawImage((Image)pipes.get(0), 500, 332, this);
+        for (int i = 0; i < 8; i++) {
+            Pipe temp = (Pipe) pipes.get(i);
+            g.drawImage(temp.animacion.getImagen(), temp.getPosX(), temp.getPosY(), this);
+        }
         if (nave.getAnimacion() != null) {
             g.drawImage(nave.animacion.getImagen(), nave.getPosX(), nave.getPosY(), this);
         }
-
+        g.drawImage(imgBackground, 0, 0, this);
     }
 
     /**
