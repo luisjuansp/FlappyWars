@@ -34,6 +34,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
     private int nVely; // velocidad en y de la nave
     private int oVelx; // Velocidad de los obstaculos
     private LinkedList frames;
+    private LinkedList pipes;
 
     public FlappyWars() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -42,6 +43,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         nVely = 0;
         tiempoPipe = 0;
         frames = new LinkedList();
+        pipes = new LinkedList();
 
         imgBackground = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/background.png"));
         imgBlack = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/black.jpg"));
@@ -54,6 +56,17 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         Image n3 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing1.png"));
         Image n4 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing0.png"));
 
+        Image p0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipe.png"));
+        Image p1 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipe.png")); 
+        pipes.add(p0);
+        pipes.add(p1);
+        pipes.add(p0);
+        pipes.add(p1);
+        pipes.add(p0);
+        pipes.add(p1);
+        
+        
+        
         // Animacion del X-Wing
         animNave = new Animacion();
         animNave.sumaCuadro(n0, 200);
@@ -153,7 +166,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
         g.drawImage(imgBlack, 0, 0, this);
         g.drawImage(imgBackground, 0, 0, this);
 
-        g.drawImage(imgPipe, 500, 332, this);
+        g.drawImage((Image)pipes.get(0), 500, 332, this);
         if (nave.getAnimacion() != null) {
             g.drawImage(nave.animacion.getImagen(), nave.getPosX(), nave.getPosY(), this);
         }
