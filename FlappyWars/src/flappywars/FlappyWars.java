@@ -45,7 +45,7 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
 
         imgBackground = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/background.png"));
         imgBlack = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/black.jpg"));
-        imgPipe = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipe.png"));
+        imgPipe = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/pipeD.png"));
 
         // Se cargan las imagenes de animNave
         Image n0 = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("images/xwing4.png"));
@@ -151,9 +151,9 @@ public class FlappyWars extends JFrame implements Runnable, KeyListener {
      */
     public void paint1(Graphics g) {
         g.drawImage(imgBlack, 0, 0, this);
+        g.drawImage(imgPipe, 500, 332, this);
         g.drawImage(imgBackground, 0, 0, this);
 
-        g.drawImage(imgPipe, 500, 332, this);
         if (nave.getAnimacion() != null) {
             g.drawImage(nave.animacion.getImagen(), nave.getPosX(), nave.getPosY(), this);
         }
